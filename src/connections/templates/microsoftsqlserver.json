@@ -1,7 +1,0 @@
-{
-    "host": "mssql-db.example.com", 
-    "port": "1433", 
-    "username": "user", 
-    "password": "password",
-    "database": "master"
-}

@@ -2,26 +2,62 @@
     "oracle": {
         "display_name": "Oracle",
         "dependencies": ["cx_Oracle"],
-        "connection_string": "oracle+cx_oracle://{username}:{password}@{host}:{port}/{database}"
+        "connection_string": "oracle+cx_oracle://{username}:{password}@{host}:{port}/{database}",
+        "template": {
+            "host": "oracle-db.example.com", 
+            "port": "1521", 
+            "username": "user", 
+            "password": "password",
+            "database": "ORCL"
+        }
     },
     "postgresql": {
         "display_name": "PostgreSQL",
         "dependencies": ["psycopg2"],
-        "connection_string": "postgresql://{username}:{password}@{host}:{port}/{database}"
+        "connection_string": "postgresql://{username}:{password}@{host}:{port}/{database}",
+        "template": {
+            "host": "postgresql-db.example.com", 
+            "port": "5432", 
+            "username": "user", 
+            "password": "password",
+            "database": "mydb"
+        }
     },
     "microsoftsqlserver": {
         "display_name": "Microsoft SQL Server",
         "dependencies": ["pyodbc"],
-        "connection_string": "mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver=ODBC+Driver+17+for+SQL+Server"
+        "connection_string": "mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver=ODBC+Driver+17+for+SQL+Server",
+        "template": {
+            "host": "mssql-db.example.com", 
+            "port": "1433", 
+            "username": "user", 
+            "password": "password",
+            "database": "master"
+        }
     },
     "mysql": {
         "display_name": "MySQL",
         "dependencies": ["pymysql"],
-        "connection_string": "mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
+        "connection_string": "mysql+pymysql://{username}:{password}@{host}:{port}/{database}",
+        "template": {
+            "host": "mysql-db.example.com", 
+            "port": "3306", 
+            "username": "user", 
+            "password": "password",
+            "database": "mydb"
+        }
     },
     "snowflake": {
         "display_name": "Snowflake",
         "dependencies": ["snowflake-connector-python"],
-        "connection_string": "snowflake://{username}:{password}@{host}/{database}?schema={schema}"
+        "connection_string": "snowflake://{username}:{password}@{host}/{database}?schema={schema}",
+        "template": {
+            "host": "snowflake.example.com", 
+            "port": "", 
+            "username": "user", 
+            "password": "password",
+            "database": "SNOWDB", 
+            "schema": "PUBLIC"
+        }
     }
 }

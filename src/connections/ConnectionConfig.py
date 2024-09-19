@@ -41,11 +41,9 @@ class ConnectionConfig(QMainWindow):
 
         # Templates for different database types with required fields
         self.templates = {}
-        template_list = os.listdir(f'{ self.curr_dir }/src/connections/templates')
-        for temp in template_list:
-            with open(f'{ self.curr_dir }/src/connections/templates/{ temp }') as json_file:
-                self.templates[temp.split('.')[0]] = json.load(json_file)
-        
+        for key, value in self.definitions.items():
+            self.templates[key] = value['template']
+
         self.default_template = {
             'host': 'db.example.com', 
             'port': '5432', 

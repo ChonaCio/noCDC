@@ -1,7 +1,0 @@
-{
-    "host": "postgresql-db.example.com", 
-    "port": "5432", 
-    "username": "user", 
-    "password": "password",
-    "database": "mydb"
-}
