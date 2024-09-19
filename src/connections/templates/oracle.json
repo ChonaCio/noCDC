@@ -1,0 +1,7 @@
+{
+    "host": "oracle-db.example.com", 
+    "port": "1521", 
+    "username": "user", 
+    "password": "password",
+    "database": "ORCL"
+}

@@ -8,6 +8,9 @@ from PyQt6.QtCore import pyqtSignal
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
+import json
+import os
+
 class ConnectionConfig(QMainWindow):
     # Define a signal that will be emitted when the save button is clicked
     saved = pyqtSignal()
@@ -28,30 +31,21 @@ class ConnectionConfig(QMainWindow):
         self.config.read(self.ini_file)
 
         # Templates for different database types with required fields
-        self.templates = {
-            'oracle': {
-                'host': 'oracle-db.example.com', 'port': '1521', 'username': 'user', 'password': 'password',
-                'database': 'ORCL'
-            },
-            'postgresql': {
-                'host': 'postgresql-db.example.com', 'port': '5432', 'username': 'user', 'password': 'password',
-                'database': 'mydb'
-            },
-            'microsoftsqlserver': {
-                'host': 'mssql-db.example.com', 'port': '1433', 'username': 'user', 'password': 'password',
-                'database': 'master'
-            },
-            'mysql': {
-                'host': 'mysql-db.example.com', 'port': '3306', 'username': 'user', 'password': 'password',
-                'database': 'mydb'
-            },
-            'snowflake': {
-                'host': 'snowflake.example.com', 'port': '', 'username': 'user', 'password': 'password',
-                'database': 'SNOWDB', 'schema': 'PUBLIC'
-            }
-        }
+        self.templates = {}
+        curr_dir = os.path.abspath(os.getcwd())
+        print(curr_dir)
+        template_list = os.listdir(f'{ curr_dir }/src/connections/templates')
+        print(template_list)
+        for temp in template_list:
+            with open(f'{ curr_dir }/src/connections/templates/{ temp }') as json_file:
+                print(temp.split('.')[0])
+                self.templates[temp.split('.')[0]] = json.load(json_file)
+        
         self.default_template = {
-            'host': 'db.example.com', 'port': '5432', 'username': 'user', 'password': 'password',
+            'host': 'db.example.com', 
+            'port': '5432', 
+            'username': 'user', 
+            'password': 'password',
             'database': 'mydatabase'
         }  # Default values
 

@@ -1,0 +1,8 @@
+{
+    "host": "snowflake.example.com", 
+    "port": "", 
+    "username": "user", 
+    "password": "password",
+    "database": "SNOWDB", 
+    "schema": "PUBLIC"
+}
