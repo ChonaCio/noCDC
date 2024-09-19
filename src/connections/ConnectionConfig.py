@@ -33,12 +33,9 @@ class ConnectionConfig(QMainWindow):
         # Templates for different database types with required fields
         self.templates = {}
         curr_dir = os.path.abspath(os.getcwd())
-        print(curr_dir)
         template_list = os.listdir(f'{ curr_dir }/src/connections/templates')
-        print(template_list)
         for temp in template_list:
             with open(f'{ curr_dir }/src/connections/templates/{ temp }') as json_file:
-                print(temp.split('.')[0])
                 self.templates[temp.split('.')[0]] = json.load(json_file)
         
         self.default_template = {

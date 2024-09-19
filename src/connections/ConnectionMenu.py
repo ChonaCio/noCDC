@@ -65,13 +65,20 @@ class MainWindow(QMainWindow):
 
         self.table_view.setRowCount(0)  # Clear existing rows
 
+        type_mapping = {
+            'oracle': 'Oracle',
+            'postgresql': 'Postgresql',
+            'microsoftsqlserver': 'Microsoft SQL Server',
+            'mysql': 'MySQL',
+            'snowflake': 'Snowflake'
+        }
+
         for section in self.config.sections():
             row_position = self.table_view.rowCount()
             self.table_view.insertRow(row_position)
-
             # Add ID, Type, Host, Database columns
             self.table_view.setItem(row_position, 0, QTableWidgetItem(section))
-            self.table_view.setItem(row_position, 1, QTableWidgetItem(self.config[section].get('type', '')))
+            self.table_view.setItem(row_position, 1, QTableWidgetItem(type_mapping[self.config[section].get('type', '')]))
             self.table_view.setItem(row_position, 2, QTableWidgetItem(self.config[section].get('host', '')))
             self.table_view.setItem(row_position, 3, QTableWidgetItem(self.config[section].get('database', '')))
 
