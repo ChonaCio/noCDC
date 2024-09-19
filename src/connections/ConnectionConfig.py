@@ -8,6 +8,8 @@ from PyQt6.QtCore import pyqtSignal
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
+import subprocess
+import importlib
 import json
 import os
 
@@ -30,12 +32,18 @@ class ConnectionConfig(QMainWindow):
         self.config = configparser.ConfigParser()
         self.config.read(self.ini_file)
 
+        # Define current directory
+        self.curr_dir = os.path.abspath(os.getcwd())
+
+        # Importing definitions defined in JSON
+        with open(f'{ self.curr_dir }/src/connections/definitions.json') as json_file:
+            self.definitions = json.load(json_file)
+
         # Templates for different database types with required fields
         self.templates = {}
-        curr_dir = os.path.abspath(os.getcwd())
-        template_list = os.listdir(f'{ curr_dir }/src/connections/templates')
+        template_list = os.listdir(f'{ self.curr_dir }/src/connections/templates')
         for temp in template_list:
-            with open(f'{ curr_dir }/src/connections/templates/{ temp }') as json_file:
+            with open(f'{ self.curr_dir }/src/connections/templates/{ temp }') as json_file:
                 self.templates[temp.split('.')[0]] = json.load(json_file)
         
         self.default_template = {
@@ -58,7 +66,8 @@ class ConnectionConfig(QMainWindow):
         self.type_dropdown = QComboBox(self)
         
         # Database types, sorted alphabetically
-        db_types = sorted(["Oracle", "Postgresql", "Microsoft SQL Server", "MySQL", "Snowflake"])
+
+        db_types = sorted([self.definitions[x]['display_name'] for x in self.definitions])
         self.type_dropdown.addItems(db_types)
 
         # Connect dropdown change to update form with template
@@ -143,16 +152,8 @@ class ConnectionConfig(QMainWindow):
         current_type = connection_data.get('type', '')
         current_type = current_type.lower().replace(" ", "")
 
-        type_mapping = {
-            'oracle': 'Oracle',
-            'postgresql': 'Postgresql',
-            'microsoftsqlserver': 'Microsoft SQL Server',
-            'mysql': 'MySQL',
-            'snowflake': 'Snowflake'
-        }
-
-        if current_type in type_mapping:
-            self.type_dropdown.setCurrentText(type_mapping[current_type])
+        if current_type in self.definitions:
+            self.type_dropdown.setCurrentText(self.definitions[current_type]['display_name'])
 
     def get_connection_data(self):
         """Get the connection details for the given connection ID from the ini file."""
@@ -254,9 +255,47 @@ class ConnectionConfig(QMainWindow):
         QMessageBox.information(self, "Saved", f"Connection '{self.connection_id}' has been saved.")
         self.close()
 
+    def check_and_install_packages(self, db_type):
+        """Check if required packages are installed, and prompt for installation if missing."""
+
+        missing_packages = []
+        for package in self.definitions[db_type]['dependencies']:
+            if importlib.util.find_spec(package) is None:
+                missing_packages.append(package)
+
+        if missing_packages:
+            reply = QMessageBox.question(
+                self, 
+                "Missing Packages",
+                f"The following packages are required but not installed:\n{', '.join(missing_packages)}\n"
+                f"Do you want to install them?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+
+            if reply == QMessageBox.StandardButton.Yes:
+                for package in missing_packages:
+                    try:
+                        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                    except subprocess.CalledProcessError:
+                        QMessageBox.critical(self, "Installation Failed", f"Failed to install {package}. Please install it manually.")
+                        return False
+                return True
+            else:
+                return False
+        return True
+
     def test_connection(self):
         """Test the connection using SQLAlchemy."""
+        if not self.validate_fields():
+            return
+        
         selected_type = self.type_dropdown.currentText().lower().replace(" ", "")
+
+        # Check and install missing packages if necessary
+        if not self.check_and_install_packages(selected_type):
+            return  # Abort the test if the user declines installation
+
         host = self.host_field.text()
         port = self.port_field.text()
         username = self.username_field.text()
@@ -264,21 +303,15 @@ class ConnectionConfig(QMainWindow):
         database = self.database_field.text()
         schema = self.schema_field.text() if self.schema_field.isVisible() else ''
 
-        # Construct the connection string based on the selected database type
-        if selected_type == 'oracle':
-            connection_string = f'oracle+cx_oracle://{username}:{password}@{host}:{port}/{database}'
-        elif selected_type == 'postgresql':
-            connection_string = f'postgresql://{username}:{password}@{host}:{port}/{database}'
-        elif selected_type == 'microsoftsqlserver':
-            connection_string = f'mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver=ODBC+Driver+17+for+SQL+Server'
-        elif selected_type == 'mysql':
-            connection_string = f'mysql+pymysql://{username}:{password}@{host}:{port}/{database}'
-        elif selected_type == 'snowflake':
-            connection_string = f'snowflake://{username}:{password}@{host}/{database}?schema={schema}'
-        else:
-            QMessageBox.warning(self, "Test Failed", "Unsupported database type.")
-            return
-
+        connection_string = self.definitions[selected_type]['connection_string'].format(
+            username=username,
+            password=password,
+            host=host,
+            port=port,
+            database=database,
+            schema=schema
+        )
+        
         try:
             # Create a SQLAlchemy engine
             engine = create_engine(connection_string)

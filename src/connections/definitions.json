@@ -1,0 +1,27 @@
+{
+    "oracle": {
+        "display_name": "Oracle",
+        "dependencies": ["cx_Oracle"],
+        "connection_string": "oracle+cx_oracle://{username}:{password}@{host}:{port}/{database}"
+    },
+    "postgresql": {
+        "display_name": "PostgreSQL",
+        "dependencies": ["psycopg2"],
+        "connection_string": "postgresql://{username}:{password}@{host}:{port}/{database}"
+    },
+    "microsoftsqlserver": {
+        "display_name": "Microsoft SQL Server",
+        "dependencies": ["pyodbc"],
+        "connection_string": "mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver=ODBC+Driver+17+for+SQL+Server"
+    },
+    "mysql": {
+        "display_name": "MySQL",
+        "dependencies": ["pymysql"],
+        "connection_string": "mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
+    },
+    "snowflake": {
+        "display_name": "Snowflake",
+        "dependencies": ["snowflake-connector-python"],
+        "connection_string": "snowflake://{username}:{password}@{host}/{database}?schema={schema}"
+    }
+}
